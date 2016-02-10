@@ -17,6 +17,7 @@
 package de.chclaus.examples;
 
 import org.mitre.dsmiley.httpproxy.ProxyServlet;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,17 +33,23 @@ import java.util.Map;
 @Configuration
 public class ElasticsearchServletConfiguration {
 
+  @Value("${proxy.elasticsearch.targetUri}")
+  private String targetUri;
+
+  @Value("${proxy.elasticsearch.servletUrl}")
+  private String servletUrl;
+
+
   @Bean(name = "elasticsarchServlet")
   public ServletRegistrationBean elasticsearchServletRegistrationBean() {
+    Map<String, String> initParams = new HashMap<>();
+    initParams.put("targetUri", targetUri);
+
     ProxyServlet proxyServlet = new ProxyServlet();
 
     ServletRegistrationBean servletRegistrationBean = new ServletRegistrationBean(proxyServlet);
     servletRegistrationBean.setName("elasticsearch");
-
-    servletRegistrationBean.setUrlMappings(new ArrayList<>(Arrays.asList("/elasticsearch/*")));
-
-    Map<String, String> initParams = new HashMap<>();
-    initParams.put("targetUri", "http://localhost:9200");
+    servletRegistrationBean.setUrlMappings(new ArrayList<>(Arrays.asList(servletUrl)));
     servletRegistrationBean.setInitParameters(initParams);
 
     return servletRegistrationBean;
